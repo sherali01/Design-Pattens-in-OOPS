@@ -1,0 +1,358 @@
+---
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const patterns = await getCollection("patterns");
+
+  return patterns.map((pattern) => ({
+    params: { slug: pattern.slug },
+    props: { pattern },
+  }));
+}
+
+const { pattern } = Astro.props;
+const { Content } = await pattern.render();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{pattern.data.title} - Design Patterns</title>
+    <meta name="description" content={pattern.data.description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div class="background-pattern"></div>
+    
+    <nav class="breadcrumb">
+      <a href="/">← Back to all patterns</a>
+    </nav>
+
+    <main class="container">
+      <article>
+        <header class="article-header">
+          <div class="category-badge">{pattern.data.category}</div>
+          <h1>{pattern.data.title}</h1>
+          <p class="description">{pattern.data.description}</p>
+          <div class="header-divider"></div>
+        </header>
+
+        <div class="content">
+          <Content />
+        </div>
+      </article>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1e40af;
+    --secondary: #7c3aed;
+    --accent: #f59e0b;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --bg-light: #f8fafc;
+    --border: #e2e8f0;
+    --card-bg: #ffffff;
+    --code-bg: #f1f5f9;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+    line-height: 1.7;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  .background-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.03;
+    background-image: 
+      linear-gradient(30deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)),
+      linear-gradient(150deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)),
+      linear-gradient(30deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary)),
+      linear-gradient(150deg, var(--primary) 12%, transparent 12.5%, transparent 87%, var(--primary) 87.5%, var(--primary));
+    background-size: 80px 140px;
+    background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .breadcrumb {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 2rem 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--primary);
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  article {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .article-header {
+    padding: 3rem 3rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.02) 0%, rgba(124, 58, 237, 0.02) 100%);
+  }
+
+  .category-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .article-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  .description {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .header-divider {
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 2px;
+  }
+
+  .content {
+    padding: 3rem;
+  }
+
+  /* Typography styles for markdown content */
+  .content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .content h3 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .content h4 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .content p {
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+  }
+
+  .content ul,
+  .content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 1.75rem;
+  }
+
+  .content li {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    font-size: 1.05rem;
+  }
+
+  .content li::marker {
+    color: var(--primary);
+  }
+
+  .content strong {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .content em {
+    font-style: italic;
+    color: var(--text-secondary);
+  }
+
+  .content a {
+    color: var(--primary);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  .content a:hover {
+    border-bottom-color: var(--primary);
+  }
+
+  .content code {
+    background: var(--code-bg);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: 'Monaco', 'Courier New', monospace;
+    color: var(--primary-dark);
+    border: 1px solid var(--border);
+  }
+
+  .content pre {
+    background: var(--code-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+  }
+
+  .content pre code {
+    background: transparent;
+    padding: 0;
+    border: none;
+    color: var(--text-primary);
+  }
+
+  .content blockquote {
+    border-left: 4px solid var(--primary);
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: var(--text-secondary);
+    background: rgba(37, 99, 235, 0.03);
+    padding: 1rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .content hr {
+    border: none;
+    height: 1px;
+    background: var(--border);
+    margin: 2.5rem 0;
+  }
+
+  .content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .content th {
+    background: var(--code-bg);
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+
+  .content td {
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+  }
+
+  .content tr:nth-child(even) {
+    background: rgba(37, 99, 235, 0.02);
+  }
+
+  .content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    .breadcrumb {
+      padding: 1.5rem 1.5rem 0;
+    }
+
+    .container {
+      padding: 1rem;
+    }
+
+    .article-header {
+      padding: 2rem 1.5rem 1.5rem;
+    }
+
+    .content {
+      padding: 2rem 1.5rem;
+    }
+
+    .content h2 {
+      font-size: 1.5rem;
+    }
+
+    .content h3 {
+      font-size: 1.25rem;
+    }
+  }
+</style>
